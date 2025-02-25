@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locatie Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Jouw Locatie:</h2>
+    <p id="location">Locatie wordt geladen...</p>
+    <div id="map"></div>
+
+    <!-- Voeg de Leaflet.js bibliotheek toe -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- JavaScript-code om de locatie op te halen en de kaart weer te geven -->
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("location").innerText = "Geolocatie wordt niet ondersteund door jouw browser.";
+            }
+        }
+
+        function showPosition(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            document.getElementById("location").innerText = `Breedtegraad: ${lat}, Lengtegraad: ${lon}`;
+
+            // OpenStreetMap met Leaflet
+            let map = L.map('map').setView([lat, lon], 13); // Zet het middelpunt van de kaart
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Marker toevoegen op de locatie
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup("Jij bent hier!")
+                .openPopup();
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("location").innerText = "Toegang tot locatie geweigerd.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("location").innerText = "Locatie-informatie is niet beschikbaar.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("location").innerText = "Verzoek voor locatie verliep in tijd.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("location").innerText = "Er is een onbekende fout opgetreden.";
+                    break;
+            }
+        }
+
+        getLocation();  // Roep de functie aan om de locatie op te halen
+    </script>
+</body>
+</html>
+
